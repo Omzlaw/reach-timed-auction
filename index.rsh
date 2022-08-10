@@ -3,13 +3,15 @@
 const Bidder = {
     placeBid: Fun([UInt], Null),
     seeOutcome: Fun([UInt], Null),
+    informTimeout: Fun([], Null),
 };
 
 const Auctioneer = {
-    openBidding: Fun([UInt], Null),
-    setMinimumIncrement: Fun([UInt], Null),
+    openingBid: UInt,
+    minimumIncrement: UInt,
     lowerStartingPrice: Fun([UInt], Null),
     seeOutcome: Fun([UInt], Null),
+    informTimeout: Fun([], Null),
 };
 
 export const main = Reach.App(() => {
@@ -22,10 +24,20 @@ export const main = Reach.App(() => {
     const Jane = Participant('Jane', {
         ...Bidder,
     });
-    const James = Participant('James', {
-        ...Bidder,
+
+    init();
+
+    Jack.only(() => {
+        const openingBid = declassify(interact.openingBid);
+        const minimumIncrement = declassify(interact.minimumIncrement);
     });
-    const Amy = Participant('Amy', {
-        ...Bidder,
+
+    Jack.publish(openingBid, minimumIncrement);
+    commit();
+
+
+
+    each([Jack, John, Jane], () => {
+        // interact.seeOutcome();
     });
 });
