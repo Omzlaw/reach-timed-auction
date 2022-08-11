@@ -1,7 +1,8 @@
 'reach 0.1';
 
 const Bidder = {
-    placeBid: Fun([UInt], Null),
+    enterAuction: Fun([UInt, UInt], Null),
+    placeBid: Fun([UInt], UInt),
     seeOutcome: Fun([UInt], Null),
     informTimeout: Fun([], Null),
 };
@@ -17,6 +18,7 @@ const Auctioneer = {
 export const main = Reach.App(() => {
     const Jack = Participant('Jack', {
         ...Auctioneer,
+        deadline: UInt,
     });
     const John = Participant('John', {
         ...Bidder,
