@@ -42,24 +42,24 @@ export async function Jack(ctcTop, interact) {
   const ctc0 = stdlib.T_UInt;
   
   
-  const v51 = stdlib.protect(ctc0, interact.minimumIncrement, 'for Jack\'s interact field minimumIncrement');
-  const v52 = stdlib.protect(ctc0, interact.openingBid, 'for Jack\'s interact field openingBid');
+  const v67 = stdlib.protect(ctc0, interact.bidPrice, 'for Jack\'s interact field bidPrice');
+  const v69 = stdlib.protect(ctc0, interact.minimumIncrement, 'for Jack\'s interact field minimumIncrement');
   
   const txn1 = await (ctc.sendrecv({
-    args: [v52, v51],
+    args: [v67, v69],
     evt_cnt: 2,
     funcNum: 0,
-    lct: stdlib.checkedBigNumberify('./index.rsh:37:10:dot', stdlib.UInt_max, '0'),
+    lct: stdlib.checkedBigNumberify('./index.rsh:42:10:dot', stdlib.UInt_max, '0'),
     onlyIf: true,
     out_tys: [ctc0, ctc0],
-    pay: [stdlib.checkedBigNumberify('./index.rsh:37:10:decimal', stdlib.UInt_max, '0'), []],
+    pay: [stdlib.checkedBigNumberify('./index.rsh:42:10:decimal', stdlib.UInt_max, '0'), []],
     sim_p: (async (txn1) => {
       const sim_r = { txns: [], mapRefs: [], maps: [] };
       let sim_txn_ctr = stdlib.UInt_max;
       const getSimTokCtr = () => { sim_txn_ctr = sim_txn_ctr.sub(1); return sim_txn_ctr; };
       
       
-      const {data: [v56, v57], secs: v59, time: v58, didSend: v30, from: v55 } = txn1;
+      const {data: [v73, v74], secs: v76, time: v75, didSend: v30, from: v72 } = txn1;
       
       ;
       sim_r.txns.push({
@@ -75,7 +75,7 @@ export async function Jack(ctcTop, interact) {
     tys: [ctc0, ctc0],
     waitIfNotPresent: false
     }));
-  const {data: [v56, v57], secs: v59, time: v58, didSend: v30, from: v55 } = txn1;
+  const {data: [v73, v74], secs: v76, time: v75, didSend: v30, from: v72 } = txn1;
   ;
   return;
   
@@ -89,6 +89,7 @@ export async function Jane(ctcTop, interact) {
   const ctc = ctcTop._initialize();
   const stdlib = ctc.stdlib;
   const ctc0 = stdlib.T_UInt;
+  const ctc1 = stdlib.T_Null;
   
   
   const txn1 = await (ctc.recv({
@@ -99,8 +100,22 @@ export async function Jane(ctcTop, interact) {
     timeoutAt: undefined /* mto */,
     waitIfNotPresent: false
     }));
-  const {data: [v56, v57], secs: v59, time: v58, didSend: v30, from: v55 } = txn1;
+  const {data: [v73, v74], secs: v76, time: v75, didSend: v30, from: v72 } = txn1;
   ;
+  stdlib.protect(ctc1, await interact.enterAuction(v73, v74), {
+    at: './index.rsh:47:30:application',
+    fs: ['at ./index.rsh:46:9:application call to [unknown function] (defined at: ./index.rsh:46:27:function exp)'],
+    msg: 'enterAuction',
+    who: 'Jane'
+    });
+  
+  stdlib.protect(ctc0, await interact.placeBid(v73, v74), {
+    at: './index.rsh:55:53:application',
+    fs: ['at ./index.rsh:54:14:application call to [unknown function] (defined at: ./index.rsh:54:18:function exp)'],
+    msg: 'placeBid',
+    who: 'Jane'
+    });
+  
   return;
   
   
@@ -113,6 +128,7 @@ export async function John(ctcTop, interact) {
   const ctc = ctcTop._initialize();
   const stdlib = ctc.stdlib;
   const ctc0 = stdlib.T_UInt;
+  const ctc1 = stdlib.T_Null;
   
   
   const txn1 = await (ctc.recv({
@@ -123,8 +139,22 @@ export async function John(ctcTop, interact) {
     timeoutAt: undefined /* mto */,
     waitIfNotPresent: false
     }));
-  const {data: [v56, v57], secs: v59, time: v58, didSend: v30, from: v55 } = txn1;
+  const {data: [v73, v74], secs: v76, time: v75, didSend: v30, from: v72 } = txn1;
   ;
+  stdlib.protect(ctc1, await interact.enterAuction(v73, v74), {
+    at: './index.rsh:47:30:application',
+    fs: ['at ./index.rsh:46:9:application call to [unknown function] (defined at: ./index.rsh:46:27:function exp)'],
+    msg: 'enterAuction',
+    who: 'John'
+    });
+  
+  stdlib.protect(ctc0, await interact.placeBid(v73, v74), {
+    at: './index.rsh:51:53:application',
+    fs: ['at ./index.rsh:50:14:application call to [unknown function] (defined at: ./index.rsh:50:18:function exp)'],
+    msg: 'placeBid',
+    who: 'John'
+    });
+  
   return;
   
   
@@ -162,12 +192,12 @@ const _ETH = {
             "components": [
               {
                 "internalType": "uint256",
-                "name": "v56",
+                "name": "v73",
                 "type": "uint256"
               },
               {
                 "internalType": "uint256",
-                "name": "v57",
+                "name": "v74",
                 "type": "uint256"
               }
             ],
@@ -215,12 +245,12 @@ const _ETH = {
             "components": [
               {
                 "internalType": "uint256",
-                "name": "v56",
+                "name": "v73",
                 "type": "uint256"
               },
               {
                 "internalType": "uint256",
-                "name": "v57",
+                "name": "v74",
                 "type": "uint256"
               }
             ],
@@ -291,7 +321,7 @@ const _ETH = {
     "type": "receive"
   }
 ]`,
-  Bytecode: `0x60806040526040516103ff3803806103ff83398101604081905261002291610156565b6000805543600355604080513381528251602080830191909152808401518051838501520151606082015290517fa736757a943474ef5983bb0422ab3a1e64bcd39e99635f4430c7765118231f959181900360800190a1610085341560076100a1565b6000808055600181905561009b906002906100ca565b506101eb565b816100c65760405163100960cb60e01b81526004810182905260240160405180910390fd5b5050565b5080546100d6906101b0565b6000825580601f106100e6575050565b601f0160209004906000526020600020908101906101049190610107565b50565b5b8082111561011c5760008155600101610108565b5090565b604080519081016001600160401b038111828210171561015057634e487b7160e01b600052604160045260246000fd5b60405290565b6000818303606081121561016957600080fd5b610171610120565b835181526040601f198301121561018757600080fd5b61018f610120565b60208581015182526040909501518582015293810193909352509092915050565b600181811c908216806101c457607f821691505b602082108114156101e557634e487b7160e01b600052602260045260246000fd5b50919050565b610205806101fa6000396000f3fe6080604052600436106100355760003560e01c80631e93b0f11461003e5780638323075714610062578063ab53f2c61461007757005b3661003c57005b005b34801561004a57600080fd5b506003545b6040519081526020015b60405180910390f35b34801561006e57600080fd5b5060015461004f565b34801561008357600080fd5b5061008c61009a565b604051610059929190610137565b6000606060005460028080546100af90610194565b80601f01602080910402602001604051908101604052809291908181526020018280546100db90610194565b80156101285780601f106100fd57610100808354040283529160200191610128565b820191906000526020600020905b81548152906001019060200180831161010b57829003601f168201915b50505050509050915091509091565b82815260006020604081840152835180604085015260005b8181101561016b5785810183015185820160600152820161014f565b8181111561017d576000606083870101525b50601f01601f191692909201606001949350505050565b600181811c908216806101a857607f821691505b602082108114156101c957634e487b7160e01b600052602260045260246000fd5b5091905056fea2646970667358221220c984b2d751941779df16079a9b39c4961fa47069c7ea361b21fadce2d7e252df64736f6c634300080c0033`,
+  Bytecode: `0x60806040526040516103ff3803806103ff83398101604081905261002291610156565b6000805543600355604080513381528251602080830191909152808401518051838501520151606082015290517fa736757a943474ef5983bb0422ab3a1e64bcd39e99635f4430c7765118231f959181900360800190a1610085341560076100a1565b6000808055600181905561009b906002906100ca565b506101eb565b816100c65760405163100960cb60e01b81526004810182905260240160405180910390fd5b5050565b5080546100d6906101b0565b6000825580601f106100e6575050565b601f0160209004906000526020600020908101906101049190610107565b50565b5b8082111561011c5760008155600101610108565b5090565b604080519081016001600160401b038111828210171561015057634e487b7160e01b600052604160045260246000fd5b60405290565b6000818303606081121561016957600080fd5b610171610120565b835181526040601f198301121561018757600080fd5b61018f610120565b60208581015182526040909501518582015293810193909352509092915050565b600181811c908216806101c457607f821691505b602082108114156101e557634e487b7160e01b600052602260045260246000fd5b50919050565b610205806101fa6000396000f3fe6080604052600436106100355760003560e01c80631e93b0f11461003e5780638323075714610062578063ab53f2c61461007757005b3661003c57005b005b34801561004a57600080fd5b506003545b6040519081526020015b60405180910390f35b34801561006e57600080fd5b5060015461004f565b34801561008357600080fd5b5061008c61009a565b604051610059929190610137565b6000606060005460028080546100af90610194565b80601f01602080910402602001604051908101604052809291908181526020018280546100db90610194565b80156101285780601f106100fd57610100808354040283529160200191610128565b820191906000526020600020905b81548152906001019060200180831161010b57829003601f168201915b50505050509050915091509091565b82815260006020604081840152835180604085015260005b8181101561016b5785810183015185820160600152820161014f565b8181111561017d576000606083870101525b50601f01601f191692909201606001949350505050565b600181811c908216806101a857607f821691505b602082108114156101c957634e487b7160e01b600052602260045260246000fd5b5091905056fea26469706673582212204698dad51804dd36505838ad4d6d6554bdf3eb13309a10730f92d9a7a4c2e37c64736f6c634300080c0033`,
   BytecodeLen: 1023,
   Which: `oD`,
   version: 7,
@@ -300,7 +330,7 @@ const _ETH = {
   };
 export const _stateSourceMap = {
   1: {
-    at: './index.rsh:38:13:after expr stmt semicolon',
+    at: './index.rsh:43:13:after expr stmt semicolon',
     fs: [],
     msg: null,
     who: 'Module'

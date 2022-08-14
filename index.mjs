@@ -2,20 +2,24 @@ import { loadStdlib, ask } from '@reach-sh/stdlib';
 import * as backend from './build/index.main.mjs';
 const stdlib = loadStdlib();
 
-const getAuctioneers = async () => {
-    const isJohn = await ask.ask(
+var isJohn = false;
+
+const getBidders = async () => {
+    const _isJohn = await ask.ask(
         `Are you John?`,
         ask.yesno
     );
 
-    return isJohn ? 'John' : 'Jane';
+    isJohn = _isJohn;
+    return _isJohn ? 'John' : 'Jane';
 }
+
 
 const isJack = await ask.ask(
     `Are you Jack?`,
     ask.yesno
 );
-const who = isJack ? 'Jack' : await getAuctioneers();
+const who = isJack ? 'Jack' : await getBidders();
 
 console.log(`Entering Auction as ${who}`);
 
@@ -52,6 +56,11 @@ if (isJack) {
 const fmt = (x) => stdlib.formatCurrency(x, 4);
 const interact = {};
 
+interact.informTimeout = () => {
+    console.log(`There was a timeout.`);
+    process.exit(1);
+};
+
 if (isJack) {
     const startAuction = await ask.ask(
         `Start Auction event`,
@@ -59,11 +68,11 @@ if (isJack) {
     );
 
     if (startAuction) {
-        const openingBid = await ask.ask(
+        const bidPrice = await ask.ask(
             `How much is the opening bid for the product?`,
             stdlib.parseCurrency
         );
-        interact.openingBid = openingBid;
+        interact.bidPrice = bidPrice;
 
         const minimumIncrement = await ask.ask(
             `Set minimum bid increment value`,
@@ -73,13 +82,38 @@ if (isJack) {
         interact.deadline = { ETH: 100, ALGO: 100, CFX: 1000 }[stdlib.connector];
     }
 } else {
-    interact.enterAuction = async (openingBid, minimumIncrement) => {
+    interact.enterAuction = async (bidPrice, minimumIncrement) => {
         const accepted = await ask.ask(
-            `Do you want to enter auction? Starting price is ${fmt(openingBid)} and minimum bid increment is ${fmt(minimumIncrement)}`,
+            `Do you want to enter auction? Starting price is ${fmt(bidPrice)} and minimum bid increment is ${fmt(minimumIncrement)}`,
             ask.yesno
         );
         if (!accepted) {
             process.exit(0);
         }
     };
+
+
+    interact.placeBid = async(bidPrice, minimumIncrement) => {
+        const bid = await ask.ask(
+            `What bid do you want to place ? minimum increment is at ${fmt(minimumIncrement)}. Current price is at ${fmt(bidPrice)}`,
+            stdlib.parseCurrency
+        );
+        while (bid - bidPrice < minimumIncrement) {
+            console.log('Bid increment is lower than minimum increment, please bid again');
+            bid = await ask.ask(
+                `What bid do you want to place ? minimum increment is at ${fmt(minimumIncrement)}. Current price is at ${fmt(bidPrice)}`,
+                stdlib.parseCurrency
+            );
+        }
+        return bid;
+    }
 }
+
+
+const OUTCOME = ['Product sold to John', 'Product sold to Jane'];
+interact.seeOutcome = async (outcome) => {
+  console.log(`The outcome is: ${OUTCOME[outcome]}`);
+};
+
+const part = isJack ? ctc.p.Jack : (isJohn ? ctc.p.John : ctc.p.Jane);
+await part(interact);
