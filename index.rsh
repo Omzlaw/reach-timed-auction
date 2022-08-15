@@ -1,14 +1,27 @@
 'reach 0.1';
 
+const [isOutcome, JANE_WINS, STILL_BIDDING, JOHN_WINS] = makeEnum(3);
+
+const winner = (bidJane, bidJohn) => {
+    if (bidJohn > bidJane) {
+        return JOHN_WINS;
+    }
+    else if (bidJane > bidJohn) {
+        return JANE_WINS;
+    } else {
+        return STILL_BIDDING;
+    }
+}
+
 const Bidder = {
-    enterAuction: Fun([UInt, UInt], Null),
+    enterAuction: Fun([UInt, UInt, UInt], Null),
     placeBid: Fun([UInt, UInt], UInt),
     seeOutcome: Fun([UInt], Null),
     informTimeout: Fun([], Null),
 };
 
 const Auctioneer = {
-    bidPrice: UInt,
+    setOpeningBidPrice: Fun([], UInt),
     minimumIncrement: UInt,
     seeOutcome: Fun([UInt], Null),
     informTimeout: Fun([], Null),
@@ -18,6 +31,8 @@ export const main = Reach.App(() => {
     const Jack = Participant('Jack', {
         ...Auctioneer,
         deadline: UInt,
+        auctionTime: UInt,
+        entryPrice: UInt,
     });
     const John = Participant('John', {
         ...Bidder,
@@ -34,34 +49,67 @@ export const main = Reach.App(() => {
         });
     };
 
+
     Jack.only(() => {
-        const bidPrice = declassify(interact.bidPrice);
+        const openingBid = declassify(interact.setOpeningBidPrice());
         const minimumIncrement = declassify(interact.minimumIncrement);
+        const entryPrice = declassify(interact.entryPrice);
+        const deadline = declassify(interact.deadline);
+        const auctionTime = declassify(interact.auctionTime);
     });
 
-    Jack.publish(bidPrice, minimumIncrement);
+    Jack.publish(openingBid, minimumIncrement, entryPrice, deadline, auctionTime);
     commit();
 
 
     each([John, Jane], () => {
-        interact.enterAuction(bidPrice, minimumIncrement);
+        interact.enterAuction(openingBid, minimumIncrement, entryPrice);
     });
 
-    John.only(() => {
-        const bidJohn = declassify(interact.placeBid(bidPrice, minimumIncrement));
-    });
+    John.pay(entryPrice)
+        .timeout(relativeTime(deadline), () => closeTo(Jack, informTimeout));
+    commit();
 
-    Jane.only(() => {
-        const bidJane = declassify(interact.placeBid(bidPrice, minimumIncrement));
-    });
+    Jane.pay(entryPrice)
+        .timeout(relativeTime(deadline), () => closeTo(Jack, informTimeout));
 
-    Jack.only(() => {
+    var outcome = STILL_BIDDING;
+    invariant(balance() == 2 * entryPrice && isOutcome(outcome));
+    while (outcome == STILL_BIDDING) {
+        commit();
 
-    });
+        John.only(() => {
+            const bidJohn = declassify(interact.placeBid(23, minimumIncrement));
+        });
+
+        John.publish(bidJohn)
+            .timeout(absoluteTime(auctionTime), () => {
+
+            });
+        commit();
+
+        Jane.only(() => {
+            const bidJane = declassify(interact.placeBid(23, minimumIncrement));
+        });
+
+        Jane.publish(bidJane)
+            .timeout(absoluteTime(auctionTime), () => {
+
+            });
+        commit();
+
+        // Publish current bid price with Jack
+
+        outcome = winner(bidJane, bidJohn);
+        continue;
+    }
 
 
+
+    assert(outcome == JANE_WINS || outcome == JOHN_WINS);
+    commit();
 
     each([Jack, John, Jane], () => {
-        // interact.seeOutcome(0);
+        interact.seeOutcome(outcome);
     });
 });

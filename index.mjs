@@ -67,12 +67,22 @@ if (isJack) {
         ask.yesno
     );
 
+    const entryPrice = await ask.ask(
+        `How much is the entry price?`,
+        stdlib.parseCurrency
+    );
+    interact.entryPrice = entryPrice;
+
+    interact.auctionTime = 4000;
+
     if (startAuction) {
-        const bidPrice = await ask.ask(
-            `How much is the opening bid for the product?`,
-            stdlib.parseCurrency
-        );
-        interact.bidPrice = bidPrice;
+        interact.setOpeningBidPrice = async () => {
+            const bidPrice = await ask.ask(
+                `How much is the opening bid for the product?`,
+                stdlib.parseCurrency
+            );
+            return bidPrice;
+        }
 
         const minimumIncrement = await ask.ask(
             `Set minimum bid increment value`,
@@ -82,9 +92,9 @@ if (isJack) {
         interact.deadline = { ETH: 100, ALGO: 100, CFX: 1000 }[stdlib.connector];
     }
 } else {
-    interact.enterAuction = async (bidPrice, minimumIncrement) => {
+    interact.enterAuction = async (bidPrice, minimumIncrement, entryPrice) => {
         const accepted = await ask.ask(
-            `Do you want to enter auction? Starting price is ${fmt(bidPrice)} and minimum bid increment is ${fmt(minimumIncrement)}`,
+            `Do you want to enter auction? Starting price is ${fmt(bidPrice)}, minimum bid increment is ${fmt(minimumIncrement)} and entry price is ${fmt(entryPrice)}`,
             ask.yesno
         );
         if (!accepted) {
@@ -93,8 +103,8 @@ if (isJack) {
     };
 
 
-    interact.placeBid = async(bidPrice, minimumIncrement) => {
-        const bid = await ask.ask(
+    interact.placeBid = async (bidPrice, minimumIncrement) => {
+        var bid = await ask.ask(
             `What bid do you want to place ? minimum increment is at ${fmt(minimumIncrement)}. Current price is at ${fmt(bidPrice)}`,
             stdlib.parseCurrency
         );
@@ -105,14 +115,16 @@ if (isJack) {
                 stdlib.parseCurrency
             );
         }
+        console.log(`Your bid of ${fmt(bid)} has been placed`);
         return bid;
+
     }
 }
 
 
-const OUTCOME = ['Product sold to John', 'Product sold to Jane'];
+const OUTCOME = ['Product sold to Jane', 'No winner yet', 'Product sold to John'];
 interact.seeOutcome = async (outcome) => {
-  console.log(`The outcome is: ${OUTCOME[outcome]}`);
+    console.log(`The outcome is: ${OUTCOME[outcome]}`);
 };
 
 const part = isJack ? ctc.p.Jack : (isJohn ? ctc.p.John : ctc.p.Jane);
