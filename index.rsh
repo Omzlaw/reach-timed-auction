@@ -33,6 +33,7 @@ export const main = Reach.App(() => {
         deadline: UInt,
         auctionTime: UInt,
         entryPrice: UInt,
+        bidPrice: UInt
     });
     const John = Participant('John', {
         ...Bidder,
@@ -84,7 +85,7 @@ export const main = Reach.App(() => {
 
         John.publish(bidJohn)
             .timeout(absoluteTime(auctionTime), () => {
-
+                Jack.publish();
             });
         commit();
 
@@ -94,9 +95,12 @@ export const main = Reach.App(() => {
 
         Jane.publish(bidJane)
             .timeout(absoluteTime(auctionTime), () => {
-
+                Jack.publish();
+                
             });
         commit();
+        
+        Jack.publish();
 
         // Publish current bid price with Jack
 
